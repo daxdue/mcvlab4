@@ -9,7 +9,7 @@ from torch.autograd import Variable
 
 from PIL import Image
 
-# load weights and set defaults
+#YOLO weights
 config_path='config/yolov3.cfg'
 weights_path='config/yolov3.weights'
 class_path='config/coco.names'
@@ -17,7 +17,6 @@ img_size=416
 conf_thres=0.8
 nms_thres=0.4
 
-# load model and put into eval mode
 model = Darknet(config_path, img_size=img_size)
 model.load_weights(weights_path)
 model.cuda()
@@ -27,7 +26,7 @@ classes = utils.load_classes(class_path)
 Tensor = torch.cuda.FloatTensor
 
 def detect_image(img):
-    # scale and pad image
+
     ratio = min(img_size/img.size[0], img_size/img.size[1])
     imw = round(img.size[0] * ratio)
     imh = round(img.size[1] * ratio)
@@ -40,20 +39,20 @@ def detect_image(img):
     image_tensor = img_transforms(img).float()
     image_tensor = image_tensor.unsqueeze_(0)
     input_img = Variable(image_tensor.type(Tensor))
-    # run inference on the model and get detections
+
     with torch.no_grad():
         detections = model(input_img)
         detections = utils.non_max_suppression(detections, 80, conf_thres, nms_thres)
     return detections[0]
 
-videopath = '../data/video/overpass.mp4'
+videopath = 'test.mp4'
 
 import cv2
 from sort import *
 colors=[(255,0,0),(0,255,0),(0,0,255),(255,0,255),(128,0,0),(0,128,0),(0,0,128),(128,0,128),(128,128,0),(0,128,128)]
 
 vid = cv2.VideoCapture(videopath)
-mot_tracker = Sort() 
+mot_tracker = Sort()
 
 cv2.namedWindow('Stream',cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Stream', (800,600))
